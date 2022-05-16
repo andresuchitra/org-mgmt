@@ -10,8 +10,8 @@ type Comment struct {
 	Text      string `gorm:"type:varchar(255)"`
 	IsDeleted bool
 
-	OrganizationID int64
+	OrganizationID int64 `gorm:"index"`
 	Organization   Organization
-	MemberID       int64
+	AuthorID       int64 `gorm:"index"`
 	Author         User
 }

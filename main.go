@@ -18,7 +18,6 @@ func main() {
 	}
 
 	DB := db.Init()
-
 	e := echo.New()
 	e.Logger.SetLevel(log.INFO)
 	e.Logger.Debug(DB)
@@ -26,11 +25,8 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, "welcome")
 	})
+	handlers.NewArticleHandler(e, )
 
 	// Start server
-	go func() {
-		if err := e.Start(":9090"); err != nil && err != http.ErrServerClosed {
-			e.Logger.Fatal("shutting down the server")
-		}
-	}()
+	log.Fatal(e.Start(":9090"))
 }

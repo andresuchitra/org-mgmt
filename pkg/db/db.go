@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -22,10 +23,30 @@ func Init() *gorm.DB {
 		log.Fatalln(err)
 	}
 
-	db.AutoMigrate(&models.Organization{})
-	db.AutoMigrate(&models.User{})
+	// seed organization first record
+	firstOrg := models.Organization{Name: "Xendit"}
+	if err = db.AutoMigrate(&models.Organization{}); err == nil && db.Migrator().HasTable(&models.Organization{}) {
+		if err := db.First(&models.Organization{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+			firstOrg = models.Organization{Name: "Xendit"}
+			db.Create(&firstOrg)
+		} else if err != nil {
+			log.Fatalln("Error seeding organization!")
+		}
+	}
+	// seed user first record
+	if err = db.AutoMigrate(&models.User{}); err == nil && db.Migrator().HasTable(&models.User{}) {
+		if err := db.First(&models.User{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+			data := models.User{
+				Name:           "First",
+				Email:          "em@ail.com",
+				Password:       "pass123",
+				OrganizationID: 1, // hardcode to 1, assuming organization table start with ID 1
+			}
+			db.Create(&data)
+		}
+	}
+
 	db.AutoMigrate(&models.Comment{})
-	// db.AutoMigrate(&models.Follower{})
 
 	return db
 }

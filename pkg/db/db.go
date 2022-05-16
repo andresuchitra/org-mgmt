@@ -16,6 +16,7 @@ func Init() *gorm.DB {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta",
 		os.Getenv("DB_HOST"), os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_PORT"))
 
+	log.Println("Connecting to: ", dsn)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalln(err)
@@ -24,7 +25,7 @@ func Init() *gorm.DB {
 	db.AutoMigrate(&models.Organization{})
 	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models.Comment{})
-	db.AutoMigrate(&models.Follower{})
+	// db.AutoMigrate(&models.Follower{})
 
 	return db
 }

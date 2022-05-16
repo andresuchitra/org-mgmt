@@ -1,18 +1,44 @@
-version: "3.7"
+version: "3.8"
 
 services:
-  postgres:
-    container_name: postgres
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: org_management_api
+    env_file:
+      - .env.docker
+    ports:
+      - 9090:9090
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+    depends_on:
+      - postgresdb
+    networks:
+      - mynetwork
+  postgresdb:
+    container_name: postgres_db
     image: postgres
     restart: always
     environment:
-      - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_DB: ${DB_NAME}
     ports:
-      - 5432:5432
+      - "5432:5432"
     volumes:
-      - db:/var/lib/postgresql/data 
+      - ./pkg/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./data/db:/var/lib/postgresql/data
+    networks:
+      - mynetwork
 
 volumes:
-  db:
+  postgresdb:
+
+networks:
+  mynetwork:
+    driver: bridge

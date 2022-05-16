@@ -9,11 +9,6 @@ type User struct {
 	Email    string `gorm:"type:varchar(255);not null"`
 	Password string `gorm:"type:varchar(16);not null"`
 	Avatar   string `gorm:"type:varchar(255)"`
-}
 
-type Follower struct {
-	gorm.Model
-
-	UserID     int64 `gorm:"index;not null"`
-	FollowerID int64 `gorm:"index;not null"`
+	Followers []*User `gorm:"many2many:user_followers"`
 }

@@ -16,5 +16,12 @@ type UserRepository interface {
 }
 
 func (m *Repo) GetMembersByOrganizationID(ctx context.Context, organizationID int64) ([]models.User, error) {
+	members := make([]models.User, 0)
 
+	result := m.Conn.Where("organization_id = ?", organizationID).Find(members)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return members, nil
 }

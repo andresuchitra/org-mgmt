@@ -13,15 +13,15 @@ func NewOrganizationRepository(Conn *gorm.DB) OrganizationRepository {
 }
 
 type OrganizationRepository interface {
-	GetOrganizationByID(ctx context.Context, id int64) (*models.Organization, error)
+	GetOrganizationByName(ctx context.Context, name string) (*models.Organization, error)
 }
 
-func (m *Repo) GetOrganizationByID(ctx context.Context, organizationID int64) (*models.Organization, error) {
-	if organizationID == 0 {
-		return nil, errors.New("Invalid org ID")
+func (m *Repo) GetOrganizationByName(ctx context.Context, name string) (*models.Organization, error) {
+	if name == "" {
+		return nil, errors.New("Invalid org name")
 	}
 	org := models.Organization{}
-	result := m.Conn.Where("id = ?", organizationID).First(&org)
+	result := m.Conn.Where("name = ?", name).First(&org)
 	if result.Error != nil {
 		return nil, result.Error
 	}

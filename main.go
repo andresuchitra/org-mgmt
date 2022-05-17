@@ -7,7 +7,10 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 
+	"github.com/andresuchitra/org-mgmt/handler"
 	"github.com/andresuchitra/org-mgmt/pkg/db"
+	"github.com/andresuchitra/org-mgmt/repository"
+	"github.com/andresuchitra/org-mgmt/service"
 )
 
 func main() {
@@ -25,7 +28,13 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, "welcome")
 	})
-	handlers.NewArticleHandler(e, )
+
+	orgRepo := repository.NewOrganizationRepository(DB)
+	commentRepo := repository.NewCommentRepository(DB)
+	userRepo := repository.NewUserRepository(DB)
+
+	orgService := service.NewOrganizationService(orgRepo, userRepo, commentRepo)
+	handler.NewHandler(e, orgService)
 
 	// Start server
 	log.Fatal(e.Start(":9090"))

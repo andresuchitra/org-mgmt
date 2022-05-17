@@ -27,7 +27,7 @@ func Init() *gorm.DB {
 	firstOrg := models.Organization{Name: "Xendit"}
 	if err = db.AutoMigrate(&models.Organization{}); err == nil && db.Migrator().HasTable(&models.Organization{}) {
 		if err := db.First(&models.Organization{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-			firstOrg = models.Organization{Name: "Xendit"}
+			firstOrg = models.Organization{Name: "xendit"}
 			db.Create(&firstOrg)
 		} else if err != nil {
 			log.Fatalln("Error seeding organization!")

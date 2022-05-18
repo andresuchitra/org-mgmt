@@ -10,7 +10,9 @@ type User struct {
 	Password string `gorm:"type:varchar(16);not null"`
 	Avatar   string `gorm:"type:varchar(255)"`
 
-	Followers      []*User `gorm:"many2many:user_followers"`
-	OrganizationID int64   `gorm:"index;not null"`
+	Followers      []User `gorm:"many2many:user_followers"`
+	OrganizationID int64  `gorm:"index;not null"`
 	Organization   Organization
+
+	TotalFollowing uint32 `gorm:"->"`
 }

@@ -8,8 +8,8 @@ import (
 )
 
 type OrganizationService interface {
-	FetchCommentsByOrganizationName(ctx context.Context, name string) ([]models.Comment, error)
-	FetchMembersByOrganizationName(ctx context.Context, name string) ([]models.User, error)
+	FetchCommentsByOrganizationName(ctx context.Context, name string) ([]models.CommentResponse, error)
+	FetchMembersByOrganizationName(ctx context.Context, name string) ([]models.UserResponse, error)
 	CreateCommentByOrganizationName(context.Context, models.CreateCommentParam) error
 	SoftDeleteCommentsByOrganizationName(ctx context.Context, name string) error
 }
@@ -28,7 +28,7 @@ func NewOrganizationService(orgRepo repository.OrganizationRepository, userRepo 
 	}
 }
 
-func (s *organizationService) FetchCommentsByOrganizationName(ctx context.Context, name string) ([]models.Comment, error) {
+func (s *organizationService) FetchCommentsByOrganizationName(ctx context.Context, name string) ([]models.CommentResponse, error) {
 	// 1. get organization ID by name
 	org, err := s.orgRepo.GetOrganizationByName(ctx, name)
 	if err != nil {
@@ -41,10 +41,15 @@ func (s *organizationService) FetchCommentsByOrganizationName(ctx context.Contex
 		return nil, err
 	}
 
-	return comments, nil
+	commentResponses := make([]models.CommentResponse, 0)
+	for _, item := range comments {
+		commentResponses = append(commentResponses, item.ConvertToCommentResponse())
+	}
+
+	return commentResponses, nil
 }
 
-func (s *organizationService) FetchMembersByOrganizationName(ctx context.Context, name string) ([]models.User, error) {
+func (s *organizationService) FetchMembersByOrganizationName(ctx context.Context, name string) ([]models.UserResponse, error) {
 	// 1. get organization ID by name
 	org, err := s.orgRepo.GetOrganizationByName(ctx, name)
 	if err != nil {
@@ -57,7 +62,14 @@ func (s *organizationService) FetchMembersByOrganizationName(ctx context.Context
 		return nil, err
 	}
 
-	return members, nil
+	membersResponse := make([]models.UserResponse, 0)
+	for _, item := range members {
+		newUser := item.ConvertToUserResponse()
+		newUser.TotalFollowers = uint32(len(item.Followers))
+		membersResponse = append(membersResponse, newUser)
+	}
+
+	return membersResponse, nil
 }
 
 func (s *organizationService) CreateCommentByOrganizationName(ctx context.Context, param models.CreateCommentParam) error {

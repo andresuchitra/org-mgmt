@@ -12,7 +12,7 @@ type Comment struct {
 
 	OrganizationID uint `gorm:"index"`
 	Organization   Organization
-	AuthorID       uint `gorm:"index"`
+	AuthorID       uint `gorm:"index" `
 	Author         User
 }
 

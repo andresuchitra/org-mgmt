@@ -20,7 +20,7 @@ type CommentRepository interface {
 func (m *Repo) GetCommentsByOrgID(ctx context.Context, organizationID uint) ([]models.Comment, error) {
 	comments := make([]models.Comment, 0)
 
-	result := m.Conn.Where("organization_id = ?", organizationID).Find(&comments)
+	result := m.Conn.Where("organization_id = ? AND is_deleted = false", organizationID).Find(&comments)
 	if result.Error != nil {
 		return nil, result.Error
 	}

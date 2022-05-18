@@ -32,7 +32,6 @@ func Init() *gorm.DB {
 			}
 			db.CreateInBatches(orgs, 2)
 		}
-
 	}
 
 	// seed users
@@ -65,6 +64,17 @@ func Init() *gorm.DB {
 			} else {
 				log.Fatalln(checkErr.Error())
 			}
+		}
+	}
+
+	// seed user_followers
+	if err := db.AutoMigrate(&models.Organization{}); err == nil && db.Migrator().HasTable(&models.Organization{}) {
+		if err := db.First(&models.Organization{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+			db.Raw("INSERT INTO user_followers(user_id, follower_id) VALUES(1,2)")
+			db.Raw("INSERT INTO user_followers(user_id, follower_id) VALUES(1,3)")
+			db.Raw("INSERT INTO user_followers(user_id, follower_id) VALUES(2,1)")
+			db.Raw("INSERT INTO user_followers(user_id, follower_id) VALUES(2,3)")
+			db.Raw("INSERT INTO user_followers(user_id, follower_id) VALUES(3,2)")
 		}
 	}
 

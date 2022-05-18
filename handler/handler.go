@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
+	"github.com/andresuchitra/org-mgmt/models"
 	"github.com/andresuchitra/org-mgmt/service"
 	echo "github.com/labstack/echo/v4"
 )
@@ -23,6 +25,8 @@ func NewHandler(e *echo.Echo, service service.OrganizationService) {
 
 	e.GET("/orgs/:name/comments", handler.FetchCommentsByOrganizationID)
 	e.GET("/orgs/:name/members", handler.FetchMembersByOrganizationID)
+	e.POST("/orgs/:name/comments", handler.CreateCommentByOrganizationName)
+	e.DELETE("/orgs/:name/comments", handler.SoftDeleteCommentsByOrganizationName)
 
 	// e.POST("/orgs/:id/comments", handler.CreateCommentByOrganizationID)
 	// e.DELETE("/orgs/:id/comments", handler.DeleteCommentsByOrganizationID)
@@ -55,4 +59,40 @@ func (h *Handler) FetchMembersByOrganizationID(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, members)
+}
+
+func (h *Handler) CreateCommentByOrganizationName(c echo.Context) error {
+	orgName := c.Param("name")
+	if orgName == "" {
+		return c.JSON(http.StatusBadRequest, ResponseError{Message: "Invalid org name"})
+	}
+
+	params := models.CreateCommentParam{}
+	if err := c.Bind(&params); err != nil {
+		return c.JSON(http.StatusBadRequest, ResponseError{Message: "Invalid payload format"})
+	}
+
+	params.OrganizationName = orgName
+
+	c.Logger().Debug("params: ", params)
+	err := h.OrganizationService.CreateCommentByOrganizationName(c.Request().Context(), params)
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, ResponseError{Message: err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, fmt.Sprintf("New comment saved to org (%s)!", orgName))
+}
+
+func (h *Handler) SoftDeleteCommentsByOrganizationName(c echo.Context) error {
+	orgName := c.Param("name")
+	if orgName == "" {
+		return c.JSON(http.StatusBadRequest, ResponseError{Message: "Invalid org name"})
+	}
+
+	err := h.OrganizationService.SoftDeleteCommentsByOrganizationName(c.Request().Context(), strings.ToLower(orgName))
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, ResponseError{Message: err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, fmt.Sprintf("All comments for organization (%s) are soft-deleted", orgName))
 }

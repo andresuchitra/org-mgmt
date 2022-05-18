@@ -10,8 +10,14 @@ type Comment struct {
 	Text      string `gorm:"type:varchar(255)"`
 	IsDeleted bool
 
-	OrganizationID int64 `gorm:"index"`
+	OrganizationID uint `gorm:"index"`
 	Organization   Organization
-	AuthorID       int64 `gorm:"index"`
+	AuthorID       uint `gorm:"index"`
 	Author         User
+}
+
+type CreateCommentParam struct {
+	OrganizationName string `json:"organization_name"`
+	Comment          string `json:"comment"`
+	AuthorID         uint   `json:"author_id"`
 }

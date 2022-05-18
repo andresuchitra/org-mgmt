@@ -22,8 +22,7 @@ func main() {
 
 	DB := db.Init()
 	e := echo.New()
-	e.Logger.SetLevel(log.INFO)
-	e.Logger.Debug(DB)
+	e.Logger.SetLevel(log.DEBUG)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, "welcome")

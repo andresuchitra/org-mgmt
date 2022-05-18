@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"log"
 
 	"github.com/andresuchitra/org-mgmt/models"
 	"github.com/andresuchitra/org-mgmt/repository"
@@ -11,6 +10,8 @@ import (
 type OrganizationService interface {
 	FetchCommentsByOrganizationName(ctx context.Context, name string) ([]models.Comment, error)
 	FetchMembersByOrganizationName(ctx context.Context, name string) ([]models.User, error)
+	CreateCommentByOrganizationName(context.Context, models.CreateCommentParam) error
+	SoftDeleteCommentsByOrganizationName(ctx context.Context, name string) error
 }
 
 type organizationService struct {
@@ -34,10 +35,8 @@ func (s *organizationService) FetchCommentsByOrganizationName(ctx context.Contex
 		return nil, err
 	}
 
-	log.Println("org data: ", org)
-
 	// 2. call comment repo to get comments by org ID
-	comments, err := s.commentRepo.GetCommentsByOrgID(ctx, int64(org.ID))
+	comments, err := s.commentRepo.GetCommentsByOrgID(ctx, org.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -59,4 +58,32 @@ func (s *organizationService) FetchMembersByOrganizationName(ctx context.Context
 	}
 
 	return members, nil
+}
+
+func (s *organizationService) CreateCommentByOrganizationName(ctx context.Context, param models.CreateCommentParam) error {
+	org, err := s.orgRepo.GetOrganizationByName(ctx, param.OrganizationName)
+	if err != nil {
+		return err
+	}
+
+	err = s.commentRepo.CreateCommentByOrganizationID(ctx, org.ID, param.AuthorID, param.Comment)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *organizationService) SoftDeleteCommentsByOrganizationName(ctx context.Context, name string) error {
+	org, err := s.orgRepo.GetOrganizationByName(ctx, name)
+	if err != nil {
+		return err
+	}
+
+	err = s.commentRepo.SoftDeleteCommentsByOrganizationID(ctx, org.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

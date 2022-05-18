@@ -12,10 +12,12 @@ func NewCommentRepository(Conn *gorm.DB) CommentRepository {
 }
 
 type CommentRepository interface {
-	GetCommentsByOrgID(ctx context.Context, id int64) ([]models.Comment, error)
+	GetCommentsByOrgID(ctx context.Context, id uint) ([]models.Comment, error)
+	CreateCommentByOrganizationID(ctx context.Context, organizationID uint, authorID uint, comment string) error
+	SoftDeleteCommentsByOrganizationID(ctx context.Context, organizationID uint) error
 }
 
-func (m *Repo) GetCommentsByOrgID(ctx context.Context, organizationID int64) ([]models.Comment, error) {
+func (m *Repo) GetCommentsByOrgID(ctx context.Context, organizationID uint) ([]models.Comment, error) {
 	comments := make([]models.Comment, 0)
 
 	result := m.Conn.Where("organization_id = ?", organizationID).Find(&comments)
@@ -24,4 +26,28 @@ func (m *Repo) GetCommentsByOrgID(ctx context.Context, organizationID int64) ([]
 	}
 
 	return comments, nil
+}
+
+func (m *Repo) CreateCommentByOrganizationID(ctx context.Context, organizationID uint, authorID uint, comment string) error {
+	newComment := models.Comment{
+		Text:           comment,
+		OrganizationID: organizationID,
+		AuthorID:       authorID,
+	}
+
+	result := m.Conn.Create(&newComment)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func (m *Repo) SoftDeleteCommentsByOrganizationID(ctx context.Context, organizationID uint) error {
+	result := m.Conn.Table("comments").Where("organization_id = ?", organizationID).Update("is_deleted", true)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }

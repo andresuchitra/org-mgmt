@@ -68,15 +68,11 @@ func Init() *gorm.DB {
 	}
 
 	// seed user_followers
-	if err := db.AutoMigrate(&models.Organization{}); err == nil && db.Migrator().HasTable(&models.Organization{}) {
-		if err := db.First(&models.Organization{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-			db.Raw("INSERT INTO user_followers(user_id, follower_id) VALUES(1,2)")
-			db.Raw("INSERT INTO user_followers(user_id, follower_id) VALUES(1,3)")
-			db.Raw("INSERT INTO user_followers(user_id, follower_id) VALUES(2,1)")
-			db.Raw("INSERT INTO user_followers(user_id, follower_id) VALUES(2,3)")
-			db.Raw("INSERT INTO user_followers(user_id, follower_id) VALUES(3,2)")
-		}
-	}
+	db.Exec("INSERT INTO user_followers(user_id, follower_id) VALUES(1,2)")
+	db.Exec("INSERT INTO user_followers(user_id, follower_id) VALUES(1,3)")
+	db.Exec("INSERT INTO user_followers(user_id, follower_id) VALUES(2,1)")
+	db.Exec("INSERT INTO user_followers(user_id, follower_id) VALUES(2,3)")
+	db.Exec("INSERT INTO user_followers(user_id, follower_id) VALUES(3,2)")
 
 	// seed comments
 	if err := db.AutoMigrate(&models.Comment{}); err == nil && db.Migrator().HasTable(&models.Comment{}) {

@@ -65,7 +65,6 @@ func (s *organizationService) FetchMembersByOrganizationName(ctx context.Context
 	membersResponse := make([]models.UserResponse, 0)
 	for _, item := range members {
 		newUser := item.ConvertToUserResponse()
-		newUser.TotalFollowers = uint32(len(item.Followers))
 		membersResponse = append(membersResponse, newUser)
 	}
 

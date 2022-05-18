@@ -10,12 +10,14 @@ type UserResponse struct {
 	TotalFollowings uint32 `json:"total_followings"`
 }
 
-func (u *User) ConvertToUserResponse() UserResponse {
+func (u *UserWithFollower) ConvertToUserResponse() UserResponse {
 	member := UserResponse{}
 	member.ID = u.ID
 	member.Email = u.Email
 	member.Avatar = u.Avatar
 	member.Name = u.Name
+	member.TotalFollowers = u.TotalFollower
+	member.TotalFollowings = u.TotalFollowing
 
 	return member
 }

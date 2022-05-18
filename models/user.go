@@ -13,6 +13,11 @@ type User struct {
 	Followers      []User `gorm:"many2many:user_followers"`
 	OrganizationID int64  `gorm:"index;not null"`
 	Organization   Organization
+}
+
+type UserWithFollower struct {
+	User
 
 	TotalFollowing uint32 `gorm:"->"`
+	TotalFollower  uint32 `gorm:"->"`
 }

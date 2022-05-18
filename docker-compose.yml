@@ -14,6 +14,8 @@ services:
       - postgresdb
     links:
       - postgresdb
+    volumes:
+      - gomod:/go/pkg/mod
   postgresdb:
     container_name: postgresdb
     image: postgres
@@ -25,3 +27,6 @@ services:
     volumes:
       - ./pkg/db/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./data/db:/var/lib/postgresql/data
+
+volumes:
+  gomod:

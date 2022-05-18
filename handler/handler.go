@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/andresuchitra/org-mgmt/models"
 	"github.com/andresuchitra/org-mgmt/service"
 	echo "github.com/labstack/echo/v4"
 )
@@ -50,8 +49,10 @@ func (h *Handler) FetchMembersByOrganizationID(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, ResponseError{Message: "Invalid org name"})
 	}
 
-	c.Logger().Debug("org name: ", orgName)
-	members := make([]models.User, 0)
+	members, err := h.OrganizationService.FetchMembersByOrganizationName(c.Request().Context(), strings.ToLower(orgName))
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, ResponseError{Message: err.Error()})
+	}
 
 	return c.JSON(http.StatusOK, members)
 }

@@ -17,36 +17,68 @@ func Init() *gorm.DB {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta",
 		os.Getenv("DB_HOST"), os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_PORT"))
 
-	log.Println("Connecting to: ", dsn)
+	log.Println("Connecting to DB: ", dsn)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	// seed organization first record
-	firstOrg := models.Organization{Name: "Xendit"}
-	if err = db.AutoMigrate(&models.Organization{}); err == nil && db.Migrator().HasTable(&models.Organization{}) {
+	if err := db.AutoMigrate(&models.Organization{}); err == nil && db.Migrator().HasTable(&models.Organization{}) {
 		if err := db.First(&models.Organization{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-			firstOrg = models.Organization{Name: "xendit"}
-			db.Create(&firstOrg)
-		} else if err != nil {
-			log.Fatalln("Error seeding organization!")
-		}
-	}
-	// seed user first record
-	if err = db.AutoMigrate(&models.User{}); err == nil && db.Migrator().HasTable(&models.User{}) {
-		if err := db.First(&models.User{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-			data := models.User{
-				Name:           "First",
-				Email:          "em@ail.com",
-				Password:       "pass123",
-				OrganizationID: 1, // hardcode to 1, assuming organization table start with ID 1
+			orgs := []models.Organization{
+				{Name: "xendit"},
+				{Name: "midtrans"},
 			}
-			db.Create(&data)
+			db.CreateInBatches(orgs, 2)
+		}
+
+	}
+
+	// seed users
+	if err := db.AutoMigrate(&models.User{}); err == nil && db.Migrator().HasTable(&models.User{}) {
+		checkErr := db.First(&models.User{}).Error
+
+		if checkErr != nil {
+			if errors.Is(checkErr, gorm.ErrRecordNotFound) {
+				users := []models.User{
+					{
+						Name:           "First User",
+						Email:          "em@ail.com",
+						Password:       "pass123",
+						OrganizationID: 1,
+					},
+					{
+						Name:           "Second User",
+						Email:          "asd@qw.com",
+						Password:       "qqq123",
+						OrganizationID: 2,
+					},
+					{
+						Name:           "THIRD User",
+						Email:          "iii@ail.com",
+						Password:       "pas222",
+						OrganizationID: 1,
+					},
+				}
+				db.CreateInBatches(users, 3)
+			} else {
+				log.Fatalln(checkErr.Error())
+			}
 		}
 	}
 
-	db.AutoMigrate(&models.Comment{})
+	// seed comments
+	if err := db.AutoMigrate(&models.Comment{}); err == nil && db.Migrator().HasTable(&models.Comment{}) {
+		if err := db.First(&models.Comment{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+			data := []models.Comment{
+				{Text: "Comment on xendit 1", OrganizationID: 1, AuthorID: 1},
+				{Text: "Comment by Third User", OrganizationID: 1, AuthorID: 3},
+				{Text: "This is midtrans", OrganizationID: 2, AuthorID: 2},
+			}
+			db.CreateInBatches(data, 3)
+		}
+	}
 
 	return db
 }

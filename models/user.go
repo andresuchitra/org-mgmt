@@ -11,5 +11,6 @@ type User struct {
 	Avatar   string `gorm:"type:varchar(255)"`
 
 	Followers      []*User `gorm:"many2many:user_followers"`
-	OrganizationID int64   `gorm:"index"`
+	OrganizationID int64   `gorm:"index;not null"`
+	Organization   Organization
 }

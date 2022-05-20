@@ -16,4 +16,5 @@
 
 .env
 data/
+postgresql
 engine

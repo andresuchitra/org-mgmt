@@ -1,4 +1,5 @@
-# Builder
+# syntax = docker/dockerfile:1-experimental
+
 FROM golang:1.17.10-alpine as builder
 
 RUN apk update && apk upgrade && \
@@ -11,9 +12,7 @@ RUN go mod download
 COPY . .
 COPY .env.docker /app/.env
 
-RUN --mount=target=. \
-    --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/root/.cache/go-build \
+RUN --mount=type=cache,target=/root/.cache/go-build \
     go build -o engine main.go
 
 # Distribution

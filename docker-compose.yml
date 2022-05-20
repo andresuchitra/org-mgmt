@@ -14,12 +14,12 @@ services:
       - postgresdb
     links:
       - postgresdb
-    volumes:
-      - gomod:/go/pkg/mod
   postgresdb:
     container_name: postgresdb
     image: postgres
     restart: always
+    env_file:
+      - .env.docker
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
@@ -28,5 +28,3 @@ services:
       - ./pkg/db/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./data/db:/var/lib/postgresql/data
 
-volumes:
-  gomod:

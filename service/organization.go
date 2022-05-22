@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/andresuchitra/org-mgmt/models"
 	"github.com/andresuchitra/org-mgmt/repository"
@@ -75,6 +76,11 @@ func (s *organizationService) CreateCommentByOrganizationName(ctx context.Contex
 	org, err := s.orgRepo.GetOrganizationByName(ctx, param.OrganizationName)
 	if err != nil {
 		return err
+	}
+
+	// validate
+	if param.AuthorID == 0 {
+		return errors.New("Invalid Author")
 	}
 
 	err = s.commentRepo.CreateCommentByOrganizationID(ctx, org.ID, param.AuthorID, param.Comment)

@@ -1,12 +1,10 @@
 BINARY=engine
-test: 
-	go test -v -cover -covermode=atomic ./...
+
+unittest: 
+	go test -short  ./...
 
 engine:
 	go build -o ${BINARY} main.go
-
-unittest:
-	go test -short  ./...
 
 clean:
 	if [ -f ${BINARY} ] ; then rm ${BINARY} ; fi
